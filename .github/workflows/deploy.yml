@@ -13,20 +13,25 @@ jobs:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v3
 
-      - name: 📤 Upload index.html via SCP
+      - name: 📤 Upload index.html to HOME
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
           source: "index.html"
-          target: "/var/www/html/"
+          target: "~/"
           overwrite: true
 
-      - name: 🔄 Reload Nginx
+      - name: 🚀 Move file to Nginx folder
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
-          script: sudo systemctl reload nginx
+          script: |
+            echo "Moving file to web directory"
+            ls ~/
+            sudo mv ~/index.html /var/www/html/index.html
+            sudo systemctl reload nginx
+            echo "Deployment done ✅"
