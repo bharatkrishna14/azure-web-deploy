@@ -13,15 +13,19 @@ jobs:
       - name: 📥 Checkout Repository
         uses: actions/checkout@v3
 
-      - name: 🚀 Deploy via SSH
+      - name: 📤 Upload index.html via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          source: "index.html"
+          target: "/var/www/html/"
+
+      - name: 🔄 Reload Nginx
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.VM_SSH_KEY }}
-          script: |
-            echo "Deploying website..."
-            cd /var/www/html
-            sudo rm -f index.html
-            sudo cp $GITHUB_WORKSPACE/index.html /var/www/html/index.html
-            sudo systemctl reload nginx
+          script: sudo systemctl reload nginx
