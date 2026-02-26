@@ -1,0 +1,23 @@
+trigger:
+- main
+
+pool:
+  name: BharatPool   
+
+steps:
+- checkout: self
+
+- task: CopyFilesOverSSH@0
+  inputs:
+    sshEndpoint: 'WebVMConnection'
+    sourceFolder: '$(System.DefaultWorkingDirectory)'
+    contents: 'index.html'
+    targetFolder: '/home/azureuser'
+
+- task: SSH@0
+  inputs:
+    sshEndpoint: 'WebVMConnection'
+    runOptions: 'commands'
+    commands: |
+      sudo mv /home/azureuser/index.html /var/www/html/index.html
+      sudo systemctl reload nginx
